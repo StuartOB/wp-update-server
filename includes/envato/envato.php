@@ -16,7 +16,7 @@ class Envato {
 		// Decode returned JSON
 		$result = json_decode( curl_exec( $ch ) , true );
 		
-		s( $result );
+		// s( $result );
 
 		//check if purchase code is correct
 		if ( ! empty( $result['verify-purchase']['item_id']) && $result['verify-purchase']['item_id'] ) {

@@ -1,52 +1,14 @@
 <?php
 
 class SecureUpdateServer extends Wpup_UpdateServer {
-	
-	protected $licenseServer;
  
-	public function __construct($serverUrl = NULL, $licenseServer = NULL) {
+	public function __construct( $serverUrl = NULL ) {
+		
 		parent::__construct($serverUrl);
-		$this->licenseServer = $licenseServer;
 	}
  
-	// protected function initRequest($query = null, $headers = null) {
-	// 	$request = parent::initRequest($query, $headers);
- 
-	// 	// Load the license, if any.
-	// 	$license = null;
-	// 	if ( $request->param('license_key') ) {
-			
-	// 		// $result = $this->licenseServer->verifyLicenseExists(
-	// 		// 	$request->slug,
-	// 		// 	$request->param('license_key')
-	// 		// );
-			
-	// 		$licence = $this->checkLicence( $request->param('license_key') );
-			
-	// 		if ( ! $licence ) {
-				
-	// 			// If the license doesn't exist, we'll output an invalid dummy license.
-	// 			// $license = new Wslm_ProductLicense( array(
-	// 			// 	'status' => $result->get_error_code(),
-	// 			// 	'error' => array(
-	// 			// 		'code' => $result->get_error_code(),
-	// 			// 		'message' => $result->get_error_message(),
-	// 			// 	),
-	// 			// ));
-				
-	// 			$licence = NULL;
-	// 		}
-	// 		else {
-	// 			$license = $result;
-	// 		}
-	// 	}
- 
-	// 	$request->license = $license;
-	// 	return $request;
-	// }
- 
-	protected function filterMetadata($meta, $request) {
-		$meta = parent::filterMetadata($meta, $request);
+	protected function filterMetadata( $meta, $request ) {
+		$meta = parent::filterMetadata( $meta, $request );
 		
 		// Only include the download URL if the license is valid.
 		if (
@@ -69,18 +31,26 @@ class SecureUpdateServer extends Wpup_UpdateServer {
  
 	protected function checkAuthorization($request) {
 		parent::checkAuthorization($request);
- 
+		
 		// Prevent download if the user doesn't have a valid license.
-		$license = $request->license;
-		if ( $request->action === 'download' && ! ($license && $license->isValid()) ) {
-			if ( !isset($license) ) {
+		if (
+				$request->action === 'download' &&
+				(
+					! isset( $request->query['license_key'] ) ||
+					! $this->checkLicence( $request->query['license_key'] )
+				)
+			) {
+			
+			if ( ! isset( $request->query['license_key'] ) ) {
+				
 				$message = 'You must provide a license key to download this plugin.';
 			}
 			else {
-				$error = $license->get('error');
-				$message = isset($error) ? $error : 'Sorry, your license is not valid.';
+				
+				$message = 'Sorry, your license is not valid.';
 			}
-			$this->exitWithError($message, 403);
+			
+			$this->exitWithError( $message, 403 );
 		}
 	}
 	
@@ -88,7 +58,7 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 		
 		// $licence_check = Envato::verifyPurchase( $userName, $apiKey , $purchaseCode, $itemId = false );
 		// $licence_check = Envato::verifyPurchase( 'cxThemes', 'mq1x88c37pyi8jhqc1xnzqje6y6h3a6f', $licence_key );
-		$licence_check = TRUE;
+		$licence_check = ( 'f128a5a1-5a1c-4e4e-82ec-a4856614c0b2' == $licence_key );
 		
 		if ( $licence_check ) {
 			return $licence_key;
