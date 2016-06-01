@@ -2,11 +2,8 @@
 
 class SecureUpdateServer extends Wpup_UpdateServer {
 	
-	protected $licenseServer;
- 
-	public function __construct($serverUrl = NULL, $licenseServer = NULL) {
+	public function __construct( $serverUrl = NULL ) {
 		parent::__construct($serverUrl);
-		$this->licenseServer = $licenseServer;
 	}
  
 	// protected function initRequest($query = null, $headers = null) {
@@ -48,6 +45,10 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 	protected function filterMetadata($meta, $request) {
 		$meta = parent::filterMetadata($meta, $request);
 		
+		// Don;t do this check here - do it when they try to
+		// update. So they get to see the notification, but
+		// can't download it. It's more enticing.
+		/*
 		// Only include the download URL if the license is valid.
 		if (
 				! isset( $request->query['license_key'] ) ||
@@ -63,24 +64,29 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 			$args = array( 'license_key' => $request->param( 'license_key' ) );
 			$meta['download_url'] = self::addQueryArg( $args, $meta['download_url'] );
 		}
- 
+		*/
+		
 		return $meta;
 	}
  
-	protected function checkAuthorization($request) {
-		parent::checkAuthorization($request);
- 
-		// Prevent download if the user doesn't have a valid license.
-		$license = $request->license;
-		if ( $request->action === 'download' && ! ($license && $license->isValid()) ) {
-			if ( !isset($license) ) {
+	protected function checkAuthorization( $request ) {
+		parent::checkAuthorization( $request );
+		
+		// Prevent download without a valid licence.
+		if ( 'download' === $request->action ) {
+			
+			$message = FALSE;
+			
+			if ( ! isset( $request->query['license_key'] ) ) {
+				
 				$message = 'You must provide a license key to download this plugin.';
 			}
-			else {
-				$error = $license->get('error');
-				$message = isset($error) ? $error : 'Sorry, your license is not valid.';
+			else if ( ! $this->checkLicence( $request->query['license_key'] ) ) {
+				
+				$message = 'Sorry, your license is not valid.';
 			}
-			$this->exitWithError($message, 403);
+			
+			if ( $message ) $this->exitWithError( $message, 403 );
 		}
 	}
 	
