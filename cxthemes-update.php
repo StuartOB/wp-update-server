@@ -86,9 +86,9 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 	
 	protected function checkLicence( $licence_key ) {
 		
-		// $licence_check = Envato::verifyPurchase( $userName, $apiKey , $purchaseCode, $itemId = false );
-		// $licence_check = Envato::verifyPurchase( 'cxThemes', 'mq1x88c37pyi8jhqc1xnzqje6y6h3a6f', $licence_key );
-		$licence_check = TRUE;
+		$licence_check = Envato::verifyPurchase( 'cxThemes', 'mq1x88c37pyi8jhqc1xnzqje6y6h3a6f', $licence_key );
+		// $licence_check = FALSE; // Force fail.
+		// $licence_check = TRUE; // Force success.
 		
 		if ( $licence_check ) {
 			return $licence_key;
