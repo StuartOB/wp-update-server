@@ -45,26 +45,27 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 	protected function filterMetadata($meta, $request) {
 		$meta = parent::filterMetadata($meta, $request);
 		
-		// Don;t do this check here - do it when they try to
+		// Don't do this check here - do it when they try to
 		// update. So they get to see the notification, but
 		// can't download it. It's more enticing.
-		/*
+		
 		// Only include the download URL if the license is valid.
 		if (
-				! isset( $request->query['license_key'] ) ||
-				! $this->checkLicence( $request->query['license_key'] )
+				isset( $request->query['license_key'] ) &&
+				$this->checkLicence( $request->query['license_key'] )
 			) {
 			
-			// No license = no download link.
-			unset( $meta['download_url'] );
+			// Append the license key or to the download URL.
+			$meta['download_url'] = self::addQueryArg(
+				array( 'license_key' => $request->param( 'license_key' ) ),
+				$meta['download_url']
+			);
 		}
 		else {
 			
-			// Append the license key or to the download URL.
-			$args = array( 'license_key' => $request->param( 'license_key' ) );
-			$meta['download_url'] = self::addQueryArg( $args, $meta['download_url'] );
+			// No license = no download link.
+			// unset( $meta['download_url'] );
 		}
-		*/
 		
 		return $meta;
 	}
