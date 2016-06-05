@@ -6,42 +6,46 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 		parent::__construct($serverUrl);
 	}
  
-	// protected function initRequest($query = null, $headers = null) {
-	// 	$request = parent::initRequest($query, $headers);
+	/*protected function initRequest($query = null, $headers = null) {
+		$request = parent::initRequest($query, $headers);
  
-	// 	// Load the license, if any.
-	// 	$license = null;
-	// 	if ( $request->param('license_key') ) {
+		// Load the license, if any.
+		$license = null;
+		if ( $request->param('license_key') ) {
 			
-	// 		// $result = $this->licenseServer->verifyLicenseExists(
-	// 		// 	$request->slug,
-	// 		// 	$request->param('license_key')
-	// 		// );
+			$result = $this->licenseServer->verifyLicenseExists(
+				$request->slug,
+				$request->param('license_key')
+			);
 			
-	// 		$licence = $this->checkLicence( $request->param('license_key') );
+			$licence = $this->checkLicence( $request->param('license_key') );
 			
-	// 		if ( ! $licence ) {
+			if ( ! $licence ) {
 				
-	// 			// If the license doesn't exist, we'll output an invalid dummy license.
-	// 			// $license = new Wslm_ProductLicense( array(
-	// 			// 	'status' => $result->get_error_code(),
-	// 			// 	'error' => array(
-	// 			// 		'code' => $result->get_error_code(),
-	// 			// 		'message' => $result->get_error_message(),
-	// 			// 	),
-	// 			// ));
+				// If the license doesn't exist, we'll output an invalid dummy license.
+				$license = new Wslm_ProductLicense( array(
+					'status' => $result->get_error_code(),
+					'error' => array(
+						'code' => $result->get_error_code(),
+						'message' => $result->get_error_message(),
+					),
+				));
 				
-	// 			$licence = NULL;
-	// 		}
-	// 		else {
-	// 			$license = $result;
-	// 		}
-	// 	}
+				$licence = NULL;
+			}
+			else {
+				$license = $result;
+			}
+		}
  
-	// 	$request->license = $license;
-	// 	return $request;
-	// }
- 
+		$request->license = $license;
+		return $request;
+	}*/
+ 	
+ 	/**
+ 	 * Overide method - checks licence_key at time of UPDATE CHECK
+ 	 */
+ 	
 	protected function filterMetadata($meta, $request) {
 		$meta = parent::filterMetadata($meta, $request);
 		
@@ -69,7 +73,11 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 		
 		return $meta;
 	}
- 
+ 	
+ 	/**
+ 	 * Overide method - checks licence_key at time of DOWNLOAD
+ 	 */
+ 	
 	protected function checkAuthorization( $request ) {
 		parent::checkAuthorization( $request );
 		
@@ -91,11 +99,14 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 		}
 	}
 	
+	/**
+	 * Custom method by Calyx
+	 */
 	protected function checkLicence( $licence_key ) {
 		
 		$licence_check = Envato::verifyPurchase( 'cxThemes', 'mq1x88c37pyi8jhqc1xnzqje6y6h3a6f', $licence_key );
-		// $licence_check = FALSE; // Force fail.
-		// $licence_check = TRUE; // Force success.
+		// $licence_check = FALSE; // Dubug: Force fail.
+		// $licence_check = TRUE; // Dubug: Force success.
 		
 		if ( $licence_check ) {
 			return $licence_key;
