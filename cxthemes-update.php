@@ -104,7 +104,18 @@ class SecureUpdateServer extends Wpup_UpdateServer {
 	 */
 	protected function checkLicence( $licence_key ) {
 		
-		$licence_check = Envato::verifyPurchase( 'cxThemes', 'mq1x88c37pyi8jhqc1xnzqje6y6h3a6f', $licence_key );
+		
+		if ( '123456789101112131415161718192930313' == $licence_key ) {
+			
+			// Allow for short circuiting the licence checking so that we, internally, can get updates to an of our own plugins.
+			$licence_check = TRUE;
+		}
+		else {
+			
+			// Check the licence key via Envato API.
+			$licence_check = Envato::verifyPurchase( 'cxThemes', 'mq1x88c37pyi8jhqc1xnzqje6y6h3a6f', $licence_key );
+		}
+		
 		// $licence_check = FALSE; // Dubug: Force fail.
 		// $licence_check = TRUE; // Dubug: Force success.
 		
